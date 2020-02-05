@@ -41,3 +41,7 @@ resources/prod/**/*
 # ignore yarn.lock
 package-lock.json
 
+# ignore generated files
+*.js
+*.map
+
