@@ -39,5 +39,5 @@ dist/**/*
 resources/prod/**/*
 
 # ignore yarn.lock
-package.lock
+package-lock.json
 
