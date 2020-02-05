@@ -1,0 +1,38 @@
+{
+  "name": "bitbucket-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "scripts": {
+    "start": "nodemon dist/main.js",
+    "test": "jest --config jestconfig.json",
+    "clean": "rm -r dist",
+    "build:js": "browserify assets/scripts/main.js > dist/main.js",
+    "build:css": "stylus assets/styles/main.styl > dist/main.css",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "build": "npm run format &&  tsc -p ./src",
+    "lint": "jshint **/*.js",
+    "build:watch": "watch 'npm run build' ."
+  },
+  "devDependencies": {
+    "@types/mocha": "^7.0.1",
+    "@types/node": "^13.7.0",
+    "browserify": "^16.5.0",
+    "eslint-config-prettier": "^6.10.0",
+    "jest": "^25.1.0",
+    "jshint": "^2.11.0",
+    "mocha": "^7.0.1",
+    "node-fetch": "^2.6.0",
+    "nodemon": "^2.0.2",
+    "prettier": "^1.19.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5",
+    "ts-json-properties": "^2.0.3",
+    "ts-node": "^8.6.2",
+    "tslint": "^6.0.0",
+    "typescript": "^3.7.5"
+  }
+}
