@@ -1,49 +1,72 @@
 import { Bitbucket, BitbucketProperties, RepositoryProperty } from "./index";
+import { Properties, Value } from "ts-json-properties/lib";
 
 const request = require("request-promise");
-
-import { Properties, Value } from "ts-json-properties/lib";
 Properties.initialize("./resources/prod/properties.json");
-
 const bb = new Bitbucket();
 
-/*
-const getSentence = (offset = 0) => {
-  const fragment = getSentenceFragment(offset);
-  if (fragment.nextPage) {
-    return fragment.data.concat(getSentence(fragment.nextPage));
-  } else {
-    return fragment.data;
-  }
-}
- */
+type repoObject = {
+  size: number;
+  limit: number;
+  isLastPage: boolean;
+  nextPageStart: number;
+  values: [
+    {
+      slug: string;
+      id: number;
+      name: string;
+      description: string;
+      scmId: string;
+      state: string;
+      statusMessage: string;
+      forkable: boolean;
+      project: string[];
+      public: false;
+      links: string[];
+    }
+  ];
+  start: number;
+};
 
-const arr: object[] = [];
+const myMap = new Map();
 export async function getAllRepositories(properties: BitbucketProperties) {
-  let repositoriesObject: Promise<any> = getSubsetRepositories(properties);
+
+  let repositoriesObject: Promise<repoObject> = getSubsetRepositories(
+    properties
+  );
   await repositoriesObject.then(repositories => {
     if (!repositories.isLastPage) {
-      arr.push(repositories);
       properties.repos.limit = repositories.nextPageStart + repositories.size;
       properties.repos.start = repositories.nextPageStart;
-      console.log(`properties.repos.start: ${properties.repos.start}`);
-      console.log(`properties.repos.limit: ${properties.repos.limit}`);
-      // console.log(repositories);
-      // return repositoriesObject = getAllRepositories(properties);
-      // repositoriesObject.concat(getAllRepositories(properties));
+
+      for (const val of repositories.values) {
+        const repo = {
+          "slug": val.slug,
+          "description": val.description,
+          branches: {}
+        };
+        myMap.set(repo, val.id);
+      }
       return getAllRepositories(properties);
+
     } else {
-      arr.push(repositories);
-      // console.log(repositories);
-      console.log(`arr.size: ${arr.length}`);
-      console.log(arr[0]);
-      console.log(
-        "============================================================="
-      );
-      console.log(arr[1]);
-    }
-  });
+
+      for (const val of repositories.values) {
+        const repo = {
+          "slug": val.slug,
+          "description": val.description,
+          branches: {}
+        }
+        myMap.set(repo, val.id);
+
+      myMap.forEach(function(v, k) {
+          console.log(`k: ${JSON.stringify(k)})`);
+          console.log(v);
+        });
+      }
+  }});
 }
+
 
 export async function getSubsetRepositories(properties: BitbucketProperties) {
   const repos: Promise<any> = bb.getRepositories(properties);
@@ -54,18 +77,6 @@ export async function getRepos(properties: BitbucketProperties) {
   const bb = new Bitbucket();
   const repos: Promise<any> = bb.getRepositories(properties);
   return repos;
-}
-
-export async function showRepos(repos: Promise<any>) {
-  console.log("SP0");
-  await repos
-    .then(response => {
-      console.log(response);
-    })
-    .catch(err => {
-      console.log(err);
-    });
-  console.log("SP2");
 }
 
 export async function main() {
@@ -82,9 +93,6 @@ export async function main() {
       limit: 20
     }
   };
-
-  // const repos: Promise<any> = getRepos(properties);
-  // showRepos(repos);
 
   getAllRepositories(properties);
 }
