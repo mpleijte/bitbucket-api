@@ -1,9 +1,10 @@
 import { Properties } from "ts-json-properties";
-import {BitbucketProperties} from "./data-structs";
+import {BitbucketProperties, repoObject} from "./data-structs";
 Properties.initialize("./resources/prod/properties.json");
 
 const request = require("request-promise");
 export class Bitbucket {
+  myMap = new Map();
 
   public property: BitbucketProperties;
 
@@ -29,11 +30,55 @@ export class Bitbucket {
       }
     });
   }
-}
+
+  async getSubsetRepositories(properties: BitbucketProperties) {
+    const repos: Promise<any> = this.getRepositories(properties);
+    return repos;
+  }
+
+  async getRepos(properties: BitbucketProperties) {
+    const bb = new Bitbucket();
+    const repos: Promise<any> = this.getRepositories(properties);
+    return repos;
+  }
+
+  async getAllRepositories(properties: BitbucketProperties): Promise<Map<number, Object>> {
+    let repositoriesObject: Promise<repoObject> = this.getSubsetRepositories(
+        properties
+    );
+    await repositoriesObject.then(repositories => {
+      if (!repositories.isLastPage) {
+        properties.repos.limit = repositories.nextPageStart + repositories.size;
+        properties.repos.start = repositories.nextPageStart;
+
+        for (const val of repositories.values) {
+          const repo = {
+            slug: val.slug,
+            description: val.description,
+            branches: {}
+          };
+          this.myMap.set(repo, val.id);
+        }
+        return this.getAllRepositories(properties);
+      } else {
+        for (const val of repositories.values) {
+          const repo = {
+            slug: val.slug,
+            description: val.description,
+            branches: {}
+          };
+          this.myMap.set(repo, val.id);
+        }
+      }
+    });
+    return this.myMap;
+  }
 
 
-class Property {
+} // END BITBUCKET CLASS
 
+
+export class Property {
   public static createDefaultProperties(): BitbucketProperties {
     return {
       host: Properties.get("host"),
@@ -47,3 +92,8 @@ class Property {
     };
   }
 }
+
+
+
+
+
