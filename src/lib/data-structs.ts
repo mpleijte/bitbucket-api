@@ -34,3 +34,13 @@ export type repoObject = {
   ];
   start: number;
 };
+
+
+export type repoDomainObject = {
+  string: {
+    "id": number;
+    "slug": string;
+    "description": string;
+    "branches": object;
+  }
+}

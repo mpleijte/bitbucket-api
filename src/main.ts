@@ -1,14 +1,16 @@
-import {Bitbucket, Property} from "./bitbucket";
-import {BitbucketProperties} from "./data-structs";
+import {Bitbucket, Property} from "./lib/bitbucket";
+import {BitbucketProperties} from "./lib/data-structs";
+import {Repositories} from "./lib/repositories";
 
 
 const property: BitbucketProperties = Property.createDefaultProperties();
-const bitbucketObj = new Bitbucket();
+const bitbucket = new Bitbucket()
+const repositories: Repositories =  new Repositories(bitbucket);
 
-bitbucketObj.getAllRepositories(Property.createDefaultProperties()).then( repos => {
-    repos.forEach(function(v, k) {
-        console.log(`k: ${JSON.stringify(k)})`);
-        console.log(v);
+repositories.getAllRepositories(property).then( repos => {
+    repos.forEach(function(k, v) {
+        // console.log(k);
+        console.log(JSON.stringify(v, null, 2));
     });
 }).catch( error => {
     console.log(`ERROR: ${error}`);
